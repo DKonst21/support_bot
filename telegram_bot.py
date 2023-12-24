@@ -33,9 +33,11 @@ def echo(update: Update, context: CallbackContext) -> None:
 
 
 def main() -> None:
-    """Start the bot."""
     load_dotenv()
     telegram_token = os.environ["TG_TOKEN"]
+    dialogflow_project_id = os.environ["PROJECT_ID"]
+    project_id = os.environ["PROJECT_ID"]
+    """Start the bot."""
     updater = Updater(telegram_token)
 
     dispatcher = updater.dispatcher
