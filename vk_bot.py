@@ -32,7 +32,7 @@ def detect_intent_texts(text, language_code="ru"):
         request={"session": session, "query_input": query_input}
     )
 
-    return response.query_result.fulfillment_text
+    return "" if response.query_result.intent.is_fallback else response.query_result.fulfillment_text
 
 
 def send_message(user_id, message, vk_api):
