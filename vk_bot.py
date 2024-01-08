@@ -1,17 +1,8 @@
-import logging
+import os
 import random
-from environs import Env
 import vk_api as vk
+from dotenv import load_dotenv
 from vk_api.longpoll import VkLongPoll, VkEventType
-from google.cloud import dialogflow
-
-logger = logging.getLogger(__name__)
-
-env = Env()
-env.read_env()
-vk_token = env('VK_TOKEN')
-project_id = env('PROJECT_ID')
-language_code = 'ru-RU'  # Укажите нужный языковой код для DialogFlow
 
 
 def detect_intent_texts(text, language_code="ru"):
@@ -19,52 +10,32 @@ def detect_intent_texts(text, language_code="ru"):
     Using the same `session_id` between requests allows continuation
     of the conversation."""
     from google.cloud import dialogflow
-
     session_client = dialogflow.SessionsClient()
-
-    session = session_client.session_path(project_id, project_id)
-
+    session = session_client.session_path(os.environ["PROJECT_ID"], os.environ["PROJECT_ID"])
     text_input = dialogflow.TextInput(text=text, language_code=language_code)
-
     query_input = dialogflow.QueryInput(text=text_input)
-
     response = session_client.detect_intent(
         request={"session": session, "query_input": query_input}
     )
 
+    return response.query_result.fulfillment_text
     return "" if response.query_result.intent.is_fallback else response.query_result.fulfillment_text
 
 
-def send_message(user_id, message, vk_api):
-    try:
-        vk_api.messages.send(
-            user_id=user_id,
-            message=message,
-            random_id=random.randint(1, 1000)
-        )
-    except Exception as e:
-        logger.error(e)
-
-
-def main():
-    try:
-        vk_session = vk.VkApi(token=vk_token)
-        vk_api = vk_session.get_api()
-        longpoll = VkLongPoll(vk_session)
-        for event in longpoll.listen():
-            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                session_client = dialogflow.SessionsClient()
-                session_id = session_client.session_path(project_id, project_id)
-                text_answer = detect_intent_texts(session_id, event.text)
-                if not text_answer:
-                    logger.info('Unclear question')
-                else:
-                    send_message(event.user_id, text_answer, vk_api)
-
-    except Exception as e:
-        logger.error(e, exc_info=True)
+def echo(event, vk_api):
+    text = detect_intent_texts(event.text)
+    vk_api.messages.send(
+        user_id=event.user_id,
+        message=text,
+        random_id=random.randint(1, 1000)
+    )
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s | %(name)s | %(message)s')
-    main()
+    load_dotenv()
+    vk_session = vk.VkApi(token=os.environ['VK_TOKEN'])
+    vk_api = vk_session.get_api()
+    longpoll = VkLongPoll(vk_session)
+    for event in longpoll.listen():
+        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+            echo(event, vk_api)
