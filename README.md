@@ -9,22 +9,29 @@ pip install -r requirements.txt
 Для Telegram-бота нужно зарегистрироваться у BotFather и получить токен. Больше информации можно получить на сайте [way23.ru](https://way23.ru/).
 Доступные переменные:
 `TG_TOKEN` — API ключ, который вы получаете при создании бота в Telegram
+`TG_CHAT_ID`— идентификатор пользователя telegram для получения логов
 `VK_TOKEN` — API ключ, который вы получаете при создании группы в ВКонтакте
 `PROJECT_ID` — ProjectID, который вы получили, когда создавали проект в DialogFlow
+`GOOGLE_APPLICATION_CREDENTIALS` — путь до файла application_default_credentials
 ## Использование
 Создание интентов в DialogFlow
 
 Выполните скрипт dialogflow_intent.py для создания интентов в [DialogFlow](https://dialogflow.cloud.google.com/).
-
-```
+```sh
 python dialogflow_intent.py
 ```
-Запуск скрипта в telegram командой:
+## Тренировка бота
+Тренировать бота можно с помощью скрипта dialogflow_intent.py, который запускается следующей командой
+```sh
+python dialogflow_intent.py --p [путь до файла json]
 ```
+
+Запуск скрипта в telegram командой:
+```sh
 python telegram_bot.py
 ```
 Запуск скрипта в VK командой:
-```
+```sh
 python vk_bot.py
 ```
 Пример использования в telegram:
