@@ -13,7 +13,7 @@ from logger import TelegramLogHandler
 logger = logging.getLogger(__name__)
 
 
-def generic_response(event, vk_api, project_id):
+def generate_response(event, vk_api, project_id):
     user_id = event.user_id
     message = event.text
     flow_response = detect_intent_texts(project_id=project_id,
@@ -49,4 +49,4 @@ if __name__ == "__main__":
     longpoll = VkLongPoll(vk_session)
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-            generic_response(event, vk_api, dialogflow_project_id)
+            generate_response(event, vk_api, dialogflow_project_id)

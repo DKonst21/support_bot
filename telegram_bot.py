@@ -12,7 +12,7 @@ from vk_bot import detect_intent_texts
 logger = logging.getLogger(__name__)
 
 
-def generic_response(update: Update, context: CallbackContext, project_id) -> None:
+def generate_response(update: Update, context: CallbackContext, project_id) -> None:
     session_id = update.effective_chat.id
     flow_response = detect_intent_texts(project_id, session_id, update.message.text)
     update.message.reply_text(flow_response.query_result.fulfillment_text)
@@ -34,7 +34,7 @@ def main() -> None:
 
     updater = Updater(telegram_token_log)
     dispatcher = updater.dispatcher
-    send_response_with_project_id = partial(generic_response, project_id=dialogflow_project_id)
+    send_response_with_project_id = partial(generate_response, project_id=dialogflow_project_id)
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, send_response_with_project_id))
     updater.start_polling()
 
